@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cyber Risk Form</title>
+</head>
+<body>
+    <h1>Threat Modeling Form</h1>
+    <p>Use this form to assess your organization's cyber risk and generate recommendations for mitigating those risks.</p>
+
+    <form id="cyber-risk-form" action="#" method="POST">
+        <label for="assets">Assets:</label>
+        <select id="assets" name="assets">
+            <option value="sensitive data">Sensitive Data</option>
+            <option value="customer information">Customer Information</option>
+            <option value="intellectual property">Intellectual Property</option>
+            <option value="employee information">Employee Information</option>
+            <option value="financial information">Financial Information</option>
+            <option value="health information">Health Information</option>
+            <option value="other">Other</option>
+        </select><br><br>
+
+        <label for="industry">Industry:</label>
+        <select id="industry" name="industry">
+            <option value="banking">Banking</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="technology">Technology</option>
+            <option value="retail">Retail</option>
+            <option value="government">Government</option>
+            <option value="education">Education</option>
+            <option value="energy">Energy</option>
+            <option value="manufacturing">Manufacturing</option>
+            <option value="telecommunications">Telecommunications</option>
+            <option value="transportation">Transportation</option>
+            <option value="other">Other</option>
+        </select><br><br>
+        
+        <label for="vulnerability">Vulnerability:</label>
+        <input type="text" id="vulnerability" name="vulnerability"><br><br>
+
+        <label for="threats">Threats:</label>
+        <select id="threats" name="threats">
+            <option value="malware">Malware</option>
+            <option value="phishing">Phishing</option>
+            <option value="insider threats">Insider Threats</option>
+            <option value="ransomware">Ransomware</option>
+            <option value="DDoS">DDoS</option>
+            <option value="social engineering">Social Engineering</option>
+            <option value="third-party risks">Third-Party Risks</option>
+            <option value="unpatched software">Unpatched Software</option>
+            <option value="zero-day exploits">Zero-Day Exploits</option>
+            <option value="other">Other</option>
+        </select><br><br>
+
+        <label for="risk">Risk Statement:</label>
+        <textarea id="risk" name="risk" rows="10" cols="30"></textarea><br><br>
+
+        <label for="recommendations">Recommendations:</label>
+        <textarea id="recommendations" name="recommendations" rows="10" cols="30"></textarea><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <script src="https://api.openai.com/js/sdk/v4/ai.js"></script>
+    <script>
+        const ai = new window.AI({
+            apiKey: "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",
+        });
+
+        const form = document.getElementById("cyber-risk-form");
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const assets = document.getElementById("assets").value;
+const vulnerability = document.getElementById("vulnerability").value;
+const industry = document.getElementById("industry").value;
+const threats = document.getElementById("threats").value;
+
+const messages = [
+  { role: "user", content: `Assets: ${assets}` },
+  { role: "user", content: `Industry: ${industry}` },
+  { role: "user", content: `Threats: ${vulnerability} ${threats}` }
+];
+
+openai.complete({
+  engine: "text-davinci-002",
+  prompt: messages,
+  maxTokens: 1024,
+  n: 1,
+  stop: "\n"
+})
+.then(function(response) {
+  const output = response.choices[0].text;
+  const lines = output.split("\n");
+  let riskStatement = "";
+  let recommendations = "";
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.startsWith("Risk Statement:")) {
+      riskStatement = line.substring("Risk Statement:".length).trim();
+    } else if (line.startsWith("Recommendations:")) {
+      recommendations = line.substring("Recommendations:".length).trim();
+    }
+  }
+
+  document.getElementById("risk").value = riskStatement;
+  document.getElementById("recommendations").value = recommendations;
+})
+.catch(function(error) {
+  console.log(error);
+});
+    }); 
+</script>
+</body>
+</html>
