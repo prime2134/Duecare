@@ -1,0 +1,48 @@
+async function main(workbook: ExcelScript.Workbook) {
+  // Set the OpenAI API key
+  const APIKey = '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';
+  const endpoint: string = "https://api.openai.com/v1/completions";
+  const sheet = workbook.getWorksheet("Prompt");
+  const range = sheet.getRange("C3:C7");
+  const values = range.getValues();
+
+  // Get the values from the four cells
+  const mytext1 = values[0][0]; // Value in cell C3
+  const mytext2 = values[1][0]; // Value in cell C4
+  const mytext3 = values[2][0]; // Value in cell C5
+  const mytext4 = values[3][0]; // Value in cell C6
+  const mytext5 = values[4][0]; // Value in cell C7
+
+  // Set model engine and prompt
+  const model: string = "text-davinci-002";
+  const prompt: string = `${mytext1} ${mytext2} ${mytext3} ${mytext4} ${mytext5}`;
+
+  // Set the HTTP headers
+  const headers: Headers = new Headers();
+  headers.append("Content-Type", "application/json");
+  headers.append("Authorization", `Bearer ${APIKey}`);
+
+  // Set the HTTP body
+  const body: string = JSON.stringify({
+    model: model,
+    prompt: prompt,
+    max_tokens: 1024,
+    n: 1,
+    temperature: 0.5,
+  });
+
+  // Send the HTTP Request
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: headers,
+    body: body,
+  });
+
+  // Get the generated text
+  const json: { choices: { text: (string | boolean | number) }[] } = await response.json();
+  const text: (string | boolean | number) = json.choices[0].text;
+
+  // Output the generated text
+  const output = sheet.getRange("C10");
+  output.setValue(text);
+}
